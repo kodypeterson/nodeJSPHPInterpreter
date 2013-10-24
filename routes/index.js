@@ -27,17 +27,26 @@ exports.index = function(req, res){
     }
 };
 
+exports.getFileCode = function(fileName){
+    return exports.fs.readFileSync(exports.path+"/"+fileName, "utf8");
+};
+
 exports.getFile = function(fileName){
-    var PHP = exports.fs.readFileSync(exports.path+"/"+fileName, "utf8");
-    return exports.convertPHPtoJS(PHP);
+    var convertedCode = "";
+    exports.getFileCode(fileName).toString().split('\n').forEach(function (line){
+        if(line != "<?php" && line != "<?" && line != "?>"){
+            if(convertedCode !== ""){
+                convertedCode += "\n";
+            }
+            convertedCode += exports.convertPHPtoJS(line);
+        }
+    });
+    return convertedCode;
 };
 
 exports.convertPHPtoJS = function(PHP){
     // I KNOW THIS SOUNDS CRAZY!!! BUT HOPEFULLY WE CAN ACTUALLY DO THIS
     // ON TO HOURS AND DAYS OF PULLING MY HAIR OUT I AM SURE!!! - SHOULD BE FUN
-
-    //TAKE CARE OF THE <?php, ?>, <?
-    PHP = PHP.replace(/(<\?php\n)|(<\?\n)|(\?>)/g, "").trim();
 
     //TAKE CARE OF . AFTER " OR BEFORE $
     //PHP = PHP.replace(/(["])[.](?=")|[.](?=\$)/g, "$1+").replace(/[^"](([$])(.*))([.])/g, "$1$2+");
