@@ -140,7 +140,11 @@ exports.runConvertedPHP = function(req, res){
             }
             vDebug += "toString(): " + " value: [" + e.toString() + "]";
             console.log(vDebug);
-            res.send("Error: "+vDebug);
+            if(res == null){
+                exports.response = "Error: "+vDebug;
+            }else{
+                res.send("Error: "+vDebug);
+            }
         }
     }
 };

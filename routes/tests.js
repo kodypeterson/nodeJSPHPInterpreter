@@ -2,7 +2,7 @@ var fs = require('fs');
 eval(fs.readFileSync('routes/index.js').toString());
 
 exports.ret = "";
-exports.all = ["echo", "conditionals", "isset", "array", "functions", "includes"];
+exports.all = ["echo", "conditionals", "isset", "array", "functions", "includes", "class"];
 exports.css = "<style>.header{text-align:center;padding-bottom:10px;border-bottom:1px dashed; }h3{margin: 0;margin-bottom: 10px;margin-top: 10px;}h3:first-child{margin-top:0;}h4{margin:0; margin-left:10px;}.codePass{padding:20px;padding-top:5px;}.codeBlock{padding: 10px;font-weight:bold;border:1px dashed; margin-top:5px; margin-bottom: 5px;}</style>";
 exports.bad = "DE0D0D";
 exports.good = "159624";
@@ -263,6 +263,22 @@ exports.isset = function(){
     ];
     var codeResultExpected = "Yep, it is set!Nope, not set!";
     var code = exports.getFile("isset.php");
+    return exports.runTests(codePassExpected, codeResultExpected, code);
+};
+
+exports.class = function(){
+    exports.ret += "<h3>Class Test:</h3>";
+    var codePassExpected = [
+        'basicClass = {"var test":{"value":"Test_Value","type":"public"},"testFun":{"isFunction":true,"type":"public","arguments":"","value":"exports.response += \'This is a response from the testFun\';"},"testFun2":{"isFunction":true,"type":"public","arguments":"","value":"exports.response += \'This is a response from the testFun\';"}}',
+        '',
+        'var testBasicClass = (function (obj){            for (var prop in obj) {                if(obj[prop][\'isFunction\']){                    obj[prop][\'value\'] = (function(){eval(basicClass[prop][\'value\']);});                }            }            return obj;        })(basicClass)',
+        'exports.response += testBasicClass[\'test\'][\'value\']',
+        '',
+        'exports.response += testBasicClass[\'testFun\'][\'value\']();'
+    ];
+    var codeResultExpected = "Test_ValueThis is a response from the testFun";
+    var code = exports.getFile("class.php");
+    console.log(code.split("\n"));
     return exports.runTests(codePassExpected, codeResultExpected, code);
 };
 
