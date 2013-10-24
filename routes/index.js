@@ -11,6 +11,9 @@ exports.response = "";
 exports.debug = false;
 exports.errorOnPage = false;
 
+exports.inClass = false;
+exports.inFunction = false;
+
 exports.index = function(req, res){
     exports.response = ""; //NEED TO MAKE THIS PER CONNECTION!!
     var file = req.path.substring(1);
@@ -74,64 +77,54 @@ exports.convertPHPtoJS = function(PHP){
     PHP = PHP.replace(/include\((.*)\);/g, function(match, capture){return include(capture.replace(/"/g, ""));});
 
     //HANDLE CLASSES
-    PHP = PHP.replace(/class (.*){((.|\n)*)\}/g, function(match, className, insideClass){
-        classVar = {};
-        temp = insideClass.split("\n");
-        inFunction = false;
-        for (var i = 0; i < temp.length; i++) {
-            if(temp[i].match(/(public|private|protected) (.*) = (.*);/)){
-                t = temp[i].match(/(public|private|protected) (.*) = (.*);/);
-                classVar[t[2]] = {};
-                classVar[t[2]]["value"] = t[3].replace(/(^")|("$)/g, "");
-                classVar[t[2]]["type"] = t[1];
-            }else if(temp[i] !== ""){
-                if(!inFunction && temp[i].match(/(public|private|protected) function/)){
-                    t = temp[i].match(/(public|private|protected) function (.*)\((.*)\)/);
-                    inFunction = t[2];
-                    classVar[t[2]] = {};
-                    classVar[t[2]]["isFunction"] = true;
-                    classVar[t[2]]["type"] = t[1];
-                    classVar[t[2]]["arguments"] = t[3];
-                }else if(inFunction){
-                    if(temp[i].trim() == "}"){
-                        classVar[inFunction]["value"] = classVar[inFunction]["value"];
-                        inFunction = false;
-                    }else{
-                        if(classVar[inFunction]["value"] === undefined){
-                            classVar[inFunction]["value"] = temp[i].trim();
-                        }else{
-                            classVar[inFunction]["value"] += temp[i].trim();
-                        }
-                    }
-                }
-            }
+    if(PHP.match(/class (.*)\{/)){
+        //FIRST LINE OF CLASS
+        temp = PHP.split(" ");
+        temp[1] = temp[1].replace("{", "");
+        PHP = temp[1]+" = createClass('"+temp[1]+"',{";
+        exports.inClass = true;
+    }
+
+    //HANDLE PUBLIC/PRIVATE/PROTECTED VARIABLES
+    var temp = PHP.match(/(public|private|protected) var (.*) = (.*)/);
+    if(temp){
+        PHP = '"'+temp[1]+"+"+temp[2]+'":'+temp[3].replace(";", ",");
+    }
+
+    //HANDLE INSIDE FUNCTIONS
+    if(exports.inFunction){
+        if(PHP.trim() == "}"){
+            exports.inFunction = false;
+            PHP = "],";
+        }else{
+            PHP = '"'+PHP.replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0')+'",';
         }
-        return className+" = "+JSON.stringify(classVar, function (key, value) {
-            if (typeof value === 'function') {
-                return value.toString();
-            }
-            return value;
-        });
-    });
+    }
+
+    //HANDLE PUBLIC/PRIVATE/PROTECTED FUNCTIONS
+    temp = PHP.match(/(public|private|protected) function (.*)/);
+    if(temp){
+        PHP = '"'+temp[1]+"+function+"+temp[2].replace("{", "")+'":[';
+        exports.inFunction = true;
+    }
+
+    if(exports.inClass && !exports.inFunction){
+        if(PHP.trim() == "}"){
+            exports.inClass = false;
+            PHP = "});";
+        }
+    }
 
     //HANDLE NEW
     PHP = PHP.replace(/= new (.*);/g, function(match, capture){
-        customParse = "(function (obj){\
-            for (var prop in obj) {\
-                if(obj[prop]['isFunction']){\
-                    obj[prop]['value'] = (function(){eval("+capture+"[prop]['value']);});\
-                }\
-            }\
-            return obj;\
-        })("+capture+")";
-        return "= "+customParse;
+        return "= "+capture+";";
     });
 
     //HANDLE -> (function)
-    PHP = PHP.replace(/->(.*)\(/g, "['$1']['value'](");
+    PHP = PHP.replace(/->(.*)\(/g, ".$1(");
 
     //HANDLE ->
-    PHP = PHP.replace(/->(.*);/g, "['$1']['value']");
+    PHP = PHP.replace(/->(.*);/g, ".$1;");
 
     console.log(PHP);
     return PHP;

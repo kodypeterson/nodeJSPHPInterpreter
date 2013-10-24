@@ -282,16 +282,34 @@ exports.isset = function(){
 exports.class = function(){
     exports.ret += "<h3>Class Test:</h3>";
     var codePassExpected = [
-        'basicClass = {"var test":{"value":"Test_Value","type":"public"},"testFun":{"isFunction":true,"type":"public","arguments":"","value":"exports.response += \'This is a response from the testFun\';"},"testFun2":{"isFunction":true,"type":"public","arguments":"","value":"exports.response += \'This is a response from the testFun\';"}}',
+        'basicClass = createClass(\'basicClass\',{',
+        '"public+test":"Test_Value",',
         '',
-        'var testBasicClass = (function (obj){            for (var prop in obj) {                if(obj[prop][\'isFunction\']){                    obj[prop][\'value\'] = (function(){eval(basicClass[prop][\'value\']);});                }            }            return obj;        })(basicClass)',
-        'exports.response += testBasicClass[\'test\'][\'value\']',
+        '"public+function+testFun()":[',
+        '"        return \\\'This is a response from the testFun\\\';",',
+        '],',
         '',
-        'exports.response += testBasicClass[\'testFun\'][\'value\']();'
+        '"public+function+testFunTwo(variable)":[',
+        '"        exports.response += variable;",',
+        '],',
+        '',
+        '"public+function+testFun3(variable)":[',
+        '"        exports.response += variable;",',
+        '"        exports.response += \\\'Done!\\\';",',
+        '],',
+        '});',
+        '',
+        'var testBasicClass = basicClass;',
+        'exports.response += testBasicClass.test;',
+        '',
+        'exports.response += testBasicClass.testFun();',
+        '',
+        'testBasicClass.testFunTwo("Testing");',
+        '',
+        'testBasicClass.testFun3("Testing2");'
     ];
-    var codeResultExpected = "Test_ValueThis is a response from the testFun";
+    var codeResultExpected = "Test_ValueThis is a response from the testFunTestingTesting2Done!";
     var code = exports.getFile("class.php");
-    console.log(code.split("\n"));
     return exports.runTests(codePassExpected, codeResultExpected, code);
 };
 
