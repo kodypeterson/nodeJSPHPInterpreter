@@ -4,7 +4,7 @@
  */
 
 exports.fs = require("fs");
-exports.path = "../testPHP";
+exports.path = "./tests";
 exports.currentJSInterpretation = "";
 exports.response = "";
 
