@@ -48,15 +48,14 @@ exports.convertPHPtoJS = function(PHP){
     // I KNOW THIS SOUNDS CRAZY!!! BUT HOPEFULLY WE CAN ACTUALLY DO THIS
     // ON TO HOURS AND DAYS OF PULLING MY HAIR OUT I AM SURE!!! - SHOULD BE FUN
 
-    //TAKE CARE OF . AFTER " OR BEFORE $
-    PHP = PHP.replace(/(["])[.](?=")|[.](?=\$)/g, "$1+").replace(/[^"](([$])(.*))([.])/g, " $1$2+");
+    //TAKE CARE OF . AFTER " OR BEFORE $ AND THE . IS NOT IN QUOTES
+    PHP = PHP.replace(/(["])[.](?=")|[.](?=\$)/g, "$1+").replace(/(.*)("?)\.(?=([^"]*"[^"]*")*[^"]*$)["]/g, "$1$2+\"");
 
     //HANDLE VARIABLES
     PHP = PHP.replace(/\$(.*) = /g, "var $1 = ");
     PHP = PHP.replace(/\$(?=([^"]*"[^"]*")*[^"]*$)/g, ""); //ONLY REPLACE THE $ IF IT IS NOT IN QUOTES
 
     //HANDLE ECHO'S
-    var handleAnEcho = false;
     if(PHP.match(/echo ("|')(.*)("|');?/g) || PHP.match(/echo (.*);?/g)){
         PHP = PHP.replace(/echo ("|')(.*)("|');?/g, "exports.response += $1$2$3");
         if(PHP.match(/echo (.*);?/g)){

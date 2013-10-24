@@ -25,4 +25,16 @@ if($world == "world"){
 }else{
     echo "Invalid";
 }
+
+if($hello.$world == "helloworld"){
+    echo "Valid";
+}else{
+    echo "Invalid";
+}
+
+if($hello." ".$world == "hello world"){
+    echo "Valid";
+}else{
+    echo "Invalid";
+}
 ?>

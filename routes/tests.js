@@ -151,9 +151,21 @@ exports.conditionals = function(){
         '    exports.response += "Valid";',
         '}else{',
         '    exports.response += "Invalid";',
+        '}',
+        '',
+        'if(hello+world == "helloworld"){',
+        '    exports.response += "Valid";',
+        '}else{',
+        '    exports.response += "Invalid";',
+        '}',
+        '',
+        'if(hello+" "+world == "hello world"){',
+        '    exports.response += "Valid";',
+        '}else{',
+        '    exports.response += "Invalid";',
         '}'
     ];
-    var codeResultExpected = "ValidInvalidInvalidValid";
+    var codeResultExpected = "ValidInvalidInvalidValidValidValid";
     var code = exports.getFile("conditionals.php");
     return exports.runTests(codePassExpected, codeResultExpected, code);
 };
