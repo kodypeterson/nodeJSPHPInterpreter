@@ -8,7 +8,7 @@ exports.bad = "DE0D0D";
 exports.good = "159624";
 exports.header = "<div class='header'>";
     exports.header += "Functional Tests:<br>";
-    exports.header += "<a href='/test/'>ALL</a>";
+    exports.header += "<a href='/'>ALL</a>";
     for (var i = 0; i < exports.all.length; i++) {
         exports.header += " - <a href='./"+exports.all[i]+"'>"+exports.all[i]+"</a>";
     }
