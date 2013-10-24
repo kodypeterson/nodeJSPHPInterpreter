@@ -49,14 +49,24 @@ exports.convertPHPtoJS = function(PHP){
     // ON TO HOURS AND DAYS OF PULLING MY HAIR OUT I AM SURE!!! - SHOULD BE FUN
 
     //TAKE CARE OF . AFTER " OR BEFORE $
-    //PHP = PHP.replace(/(["])[.](?=")|[.](?=\$)/g, "$1+").replace(/[^"](([$])(.*))([.])/g, "$1$2+");
+    PHP = PHP.replace(/(["])[.](?=")|[.](?=\$)/g, "$1+").replace(/[^"](([$])(.*))([.])/g, " $1$2+");
 
     //HANDLE VARIABLES
     PHP = PHP.replace(/\$(.*) = /g, "var $1 = ");
-    PHP = PHP.replace(/\$/g, "");
+    PHP = PHP.replace(/\$(?=([^"]*"[^"]*")*[^"]*$)/g, ""); //ONLY REPLACE THE $ IF IT IS NOT IN QUOTES
 
     //HANDLE ECHO'S
-    PHP = PHP.replace(/echo ("|')(.*)("|');?/g, "exports.response += $1$2$3;").replace(/echo (.*);?/g, "exports.response += $1");
+    var handleAnEcho = false;
+    if(PHP.match(/echo ("|')(.*)("|');?/g) || PHP.match(/echo (.*);?/g)){
+        PHP = PHP.replace(/echo ("|')(.*)("|');?/g, "exports.response += $1$2$3");
+        if(PHP.match(/echo (.*);?/g)){
+            PHP = PHP.replace(/echo (.*);?/g, "exports.response += $1");
+        }else{
+            if(PHP.slice(-1) != ";"){
+                PHP = PHP+";";
+            }
+        }
+    }
 
     //HANDLE MULTI-DIMENSIONAL ARRAYS
     PHP = PHP.replace(/=>/g, ",'=>',");

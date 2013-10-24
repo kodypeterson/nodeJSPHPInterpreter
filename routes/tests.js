@@ -104,20 +104,20 @@ exports.runTests = function(codePassExpected, codeResultExpected, code){
 exports.echo = function(){
     exports.ret += "<h3>Echo Test:</h3>";
     var codePassExpected = [
-        "var var = \"Hello\";",
+        "var var1 = \"Hello\";",
         "var var2 = \"World\";",
         "var amount = \"2.00\";",
         "",
         "exports.response += \"Hello\";",
         "exports.response += \"Hello World\";",
         "exports.response += \"2.00\";",
-        "exports.response += \"2.00\";",
-        "exports.response += var;",
-        "exports.response += var+\" World\";",
-        "exports.response += var+\" \"+var2;",
+        "exports.response += \"$2.00\";",
+        "exports.response += var1;",
+        "exports.response += var1+\" World\";",
+        "exports.response += var1+\" \"+var2;",
         "exports.response += \"$\"+amount;",
     ];
-    var codeResultExpected = "";
+    var codeResultExpected = "HelloHello World2.00$2.00HelloHello WorldHello World$2.00";
     var code = exports.getFile("echo.php");
     return exports.runTests(codePassExpected, codeResultExpected, code);
 };
