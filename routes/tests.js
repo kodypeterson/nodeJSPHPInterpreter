@@ -116,8 +116,9 @@ exports.echo = function(){
         "exports.response += var1+\" World\";",
         "exports.response += var1+\" \"+var2;",
         "exports.response += \"$\"+amount;",
+        "exports.response += \"Sentence.\";",
     ];
-    var codeResultExpected = "HelloHello World2.00$2.00HelloHello WorldHello World$2.00";
+    var codeResultExpected = "HelloHello World2.00$2.00HelloHello WorldHello World$2.00Sentence.";
     var code = exports.getFile("echo.php");
     return exports.runTests(codePassExpected, codeResultExpected, code);
 };

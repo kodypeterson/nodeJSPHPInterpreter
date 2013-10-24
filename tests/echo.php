@@ -11,4 +11,5 @@ echo $var1;
 echo $var1." World";
 echo $var1." ".$var2;
 echo "$".$amount;
+echo "Sentence.";
 ?>
