@@ -5,6 +5,7 @@
 
 var express = require('express')
   , routes = require('./routes')
+  , tests = require('./routes/tests')
   , http = require('http')
   , path = require('path');
 
@@ -28,6 +29,8 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
+app.get('/test', tests.runTest);
+app.get('/test/:specificTest', tests.runTest);
 app.get('*', routes.index);
 
 http.createServer(app).listen(app.get('port'), function(){

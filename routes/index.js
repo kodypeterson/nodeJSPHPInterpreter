@@ -13,7 +13,11 @@ exports.errorOnPage = false;
 
 exports.index = function(req, res){
     exports.response = ""; //NEED TO MAKE THIS PER CONNECTION!!
-    exports.endResult = exports.getFile("index.php");
+    var file = req.path.substring(1);
+    if(file === ""){
+        file = "index.php";
+    }
+    exports.endResult = exports.getFile(file);
     if(exports.debug){
         res.send(exports.endResult.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, "<br>"));
     }
@@ -33,12 +37,13 @@ exports.convertPHPtoJS = function(PHP){
     // ON TO HOURS AND DAYS OF PULLING MY HAIR OUT I AM SURE!!! - SHOULD BE FUN
 
     //TAKE CARE OF THE <?php, ?>, <?
-    PHP = PHP.replace(/(<\?php)|(<\?)|(\?>)/g, "");
+    PHP = PHP.replace(/(<\?php\n)|(<\?\n)|(\?>)/g, "").trim();
 
     //TAKE CARE OF . AFTER " OR BEFORE $
-    PHP = PHP.replace(/(["])[.](?=")|[.](?=\$)/g, "$1+").replace(/[^"](([$])(.*))([.])/g, "$1$2+");
+    //PHP = PHP.replace(/(["])[.](?=")|[.](?=\$)/g, "$1+").replace(/[^"](([$])(.*))([.])/g, "$1$2+");
 
     //HANDLE VARIABLES
+    PHP = PHP.replace(/\$(.*) = /g, "var $1 = ");
     PHP = PHP.replace(/\$/g, "");
 
     //HANDLE ECHO'S
@@ -166,27 +171,27 @@ function array(){
     var a = arguments,
         l = a.length,
         i = 0,
-        ret = [],
+        retObj = [],
         keyCount = 0;
 
     while (i !== l) {
         if(a[i + 1] == "=>"){
-            if(ret.length === 0){
-                ret = {};
+            if(retObj.length === 0){
+                retObj = {};
             }
-            ret[a[i]] = a[i + 2];
+            retObj[a[i]] = a[i + 2];
             i += 3;
-        }else if(ret.push === undefined){
+        }else if(retObj.push === undefined){
             //THIS IS PART OF AN OBJECT BUT NO KEY
-            ret[keyCount] = a[i];
+            retObj[keyCount] = a[i];
             keyCount++;
             i++;
         }else{
-            ret.push(a[i]);
+            retObj.push(a[i]);
             i++;
         }
     }
-    return ret;
+    return retObj;
 }
 
 function var_dump(){
